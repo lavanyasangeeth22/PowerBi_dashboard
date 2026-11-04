@@ -1,0 +1,143 @@
+import React, { useMemo, useState } from "react";
+import { data, YEARS, filterFacts } from "./store.js";
+import Overview from "./pages/Overview.jsx";
+import Sales from "./pages/Sales.jsx";
+import Customers from "./pages/Customers.jsx";
+import Restaurants from "./pages/Restaurants.jsx";
+import MenuDelivery from "./pages/MenuDelivery.jsx";
+
+const PAGES = [
+  { id: "overview", name: "Executive Overview", icon: "🏠" },
+  { id: "sales", name: "Orders & Revenue", icon: "📈" },
+  { id: "customers", name: "Customer Intelligence", icon: "👥" },
+  { id: "restaurants", name: "Restaurant Performance", icon: "🏪" },
+  { id: "menu", name: "Menu & Operations", icon: "🍽️" },
+];
+
+const PAGE_SUB = {
+  overview: "Business pulse at a glance",
+  sales: "Revenue & order trends, 2017 – 2020",
+  customers: "Who orders, how often, and how much",
+  restaurants: "Ratings, revenue share & market depth",
+  menu: "Food mix, price bands & delivery snapshot",
+};
+
+export default function App() {
+  const [page, setPage] = useState(() => {
+    const h = (location.hash || "").replace("#", "");
+    return PAGES.some((p) => p.id === h) ? h : "overview";
+  });
+  const [city, setCity] = useState("All");
+  const [year, setYear] = useState("All");
+  const [cuisine, setCuisine] = useState("All");
+  const [tick, setTick] = useState(0);
+
+  React.useEffect(() => {
+    const id = setInterval(() => setTick((t) => t + 1), 2500);
+    return () => clearInterval(id);
+  }, []);
+
+  React.useEffect(() => {
+    location.hash = page;
+  }, [page]);
+
+  const gotoHash = () => {
+    const h = (location.hash || "").replace("#", "");
+    if (PAGES.some((p) => p.id === h)) setPage(h);
+  };
+  React.useEffect(() => {
+    window.addEventListener("hashchange", gotoHash);
+    return () => window.removeEventListener("hashchange", gotoHash);
+  }, []);
+
+  const f = useMemo(() => filterFacts({ city, year, cuisine }), [city, year, cuisine, tick]);
+
+  const sub = page === "overview" ? "Business pulse at a glance" : PAGE_SUB[page];
+  const activeFilterChips = [
+    city !== "All" && `City: ${city}`,
+    year !== "All" && `Year: ${year}`,
+    cuisine !== "All" && `Cuisine: ${cuisine}`,
+  ].filter(Boolean);
+
+  return (
+    <>
+      <aside className="sidebar">
+        <div className="brand">
+          <img src="/img/logo.png" alt="Swiggy" />
+          <div>
+            <div style={{ fontWeight: 800, fontSize: 15, color: "#fff" }}>Sales Dashboard</div>
+            <div className="sub">MIS · Insights</div>
+          </div>
+        </div>
+        <nav className="nav">
+          {PAGES.map((p) => (
+            <button key={p.id} className={page === p.id ? "active" : ""} onClick={() => setPage(p.id)}>
+              <span className="icon">{p.icon}</span>
+              {p.name}
+            </button>
+          ))}
+        </nav>
+        <div className="foot">
+          Swiggy-style MIS dashboard · built from the public Swiggy dataset (2017–2020). Educational
+          project, not affiliated with Swiggy.
+        </div>
+      </aside>
+
+      <main className="main">
+        <div className="topbar">
+          <div>
+            <h1>{PAGES.find((p) => p.id === page)?.name}</h1>
+            <div className="crumb">{sub}</div>
+          </div>
+          <span className="live-badge">
+            <span className="live-dot" /> LIVE · orders flowing in
+          </span>
+          {activeFilterChips.length > 0 && (
+            <span style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+              {activeFilterChips.map((c) => (
+                <span key={c} className="pill o">
+                  {c}
+                </span>
+              ))}
+            </span>
+          )}
+          <div className="slicers">
+            <div className="slicer">
+              <label>City</label>
+              <select value={city} onChange={(e) => setCity(e.target.value)}>
+                <option>All</option>
+                {data.cities.map((c) => (
+                  <option key={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+            <div className="slicer">
+              <label>Year</label>
+              <select value={year} onChange={(e) => setYear(e.target.value)}>
+                <option>All</option>
+                {YEARS.map((y) => (
+                  <option key={y}>{y}</option>
+                ))}
+              </select>
+            </div>
+            <div className="slicer">
+              <label>Cuisine</label>
+              <select value={cuisine} onChange={(e) => setCuisine(e.target.value)}>
+                <option>All</option>
+                {data.cuisines.map((c) => (
+                  <option key={c}>{c}</option>
+                ))}
+              </select>
+            </div>
+          </div>
+        </div>
+
+        {page === "overview" && <Overview f={f} tick={tick} />}
+        {page === "sales" && <Sales f={f} />}
+        {page === "customers" && <Customers f={f} />}
+        {page === "restaurants" && <Restaurants f={f} />}
+        {page === "menu" && <MenuDelivery f={f} />}
+      </main>
+    </>
+  );
+}

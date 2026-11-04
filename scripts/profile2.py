@@ -1,0 +1,51 @@
+import pandas as pd
+import os
+
+pd.set_option("display.width", 250)
+
+orders = pd.read_csv(os.path.join("data", "raw", "Orders.csv"))
+rest = pd.read_csv(os.path.join("data", "raw", "Restaurant.csv"))
+menu = pd.read_csv(os.path.join("data", "raw", "Menu.csv"))
+users = pd.read_csv(os.path.join("data", "raw", "Users.csv"))
+food = pd.read_csv(os.path.join("data", "raw", "Food.csv"))
+
+print("== ORDERS ==")
+print("currency values:", orders["currency"].value_counts().to_dict())
+print("Sales_amount stats:\n", orders["Sales_amount"].describe())
+print("Sales_amount <= 0 count:", (orders["Sales_amount"] <= 0).sum())
+print("Sales_QTY stats:\n", orders["Sales_QTY"].describe())
+print("order_date range:", orders["order_date"].min(), "->", orders["order_date"].max())
+print("dates parsed OK:", pd.to_datetime(orders["order_date"], errors="coerce").notna().all())
+print("Restaurant_id not in Restaurant:", (~orders["Restaurant_id"].dropna().isin(rest["Restaurant_id"])).sum())
+print("User_id not in Users:", (~orders["User_id"].isin(users["User_id"])).sum())
+
+print()
+print("== RESTAURANT ==")
+print("Rating distinct sample:", rest["Rating"].unique()[:20])
+print("Rating '--' count:", (rest["Rating"] == "--").sum())
+print("Rating_count distinct:", rest["Rating_count"].unique()[:15])
+print("Country values:", rest["Country"].value_counts().to_dict())
+print("City count:", rest["City"].nunique(), "top:", rest["City"].value_counts().head(12).to_dict())
+print("Cuisine count:", rest["Cuisine"].nunique())
+
+print()
+print("== MENU ==")
+print("Menu_id unique:", menu["Menu_id"].nunique(), "of", len(menu), "-> duplicates:", menu["Menu_id"].duplicated().sum())
+print("Restaurant_id not in Restaurant:", (~menu["Restaurant_id"].isin(rest["Restaurant_id"])).sum())
+print("Food_id not in Food:", (~menu["Food_id"].isin(food["Food_id"])).sum())
+print("Price stats:\n", menu["Price"].describe())
+print("Price <=0 count:", (menu["Price"] <= 0).sum())
+print("Cuisine sample:", menu["Cuisine"].unique()[:15])
+
+print()
+print("== USERS ==")
+print("Age range:", users["Age"].min(), "-", users["Age"].max())
+print("Gender:", users["Gender"].value_counts().to_dict())
+print("Marital:", users["Marital Status"].value_counts().to_dict())
+print("Occupation:", users["Occupation"].value_counts().to_dict())
+print("Age ok:", users["Age"].between(18, 90).all())
+
+print()
+print("== FOOD ==")
+print("Food_Type:", food["Food_Type"].value_counts().to_dict())
+print("Item duplicated:", food["Item"].duplicated().sum())
