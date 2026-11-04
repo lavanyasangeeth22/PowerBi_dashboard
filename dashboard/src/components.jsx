@@ -1,14 +1,11 @@
 import React from "react";
 import { fmtINR, fmtNum, shortINR, shortNum } from "./utils.js";
 
-export function Kpi({ label, value, delta, deltaDir, color = "", icon }) {
+export function Kpi({ label, value, delta, deltaDir, color = "" }) {
   return (
     <div className="card kpi">
       <span className={`stripe ${color}`} />
-      <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-        <span style={{ fontSize: 14 }}>{icon}</span>
-        <span className="label">{label}</span>
-      </div>
+      <span className="label">{label}</span>
       <div className="value">{value}</div>
       {delta && <div className={`delta ${deltaDir || ""}`}>{delta}</div>}
     </div>

@@ -45,11 +45,11 @@ export default function Customers({ f }) {
   return (
     <>
       <div className="grid kpis">
-        <Kpi label="Revenue (scoped)" value={fmtINR(revenue)} delta="current slicer selection" icon="ðŸ’°" />
-        <Kpi label="Orders (scoped)" value={fmtNum(orders)} color="blue" delta="current slicer selection" icon="ðŸ§¾" />
-        <Kpi label="AOV" value={fmtINR(aov)} color="green" delta="per order" icon="ðŸ§®" />
-        <Kpi label="Orders / User" value={ordersPerUser.toFixed(1)} color="gold" delta="all-time average" icon="ðŸ”" />
-        <Kpi label="Registered Users" value={fmtNum(data.meta.total_users)} color="purple" delta="demographic base" icon="ðŸ‘¤" />
+        <Kpi label="Revenue (scoped)" value={fmtINR(revenue)} delta="current slicer selection" />
+        <Kpi label="Orders (scoped)" value={fmtNum(orders)} color="blue" delta="current slicer selection" />
+        <Kpi label="AOV" value={fmtINR(aov)} color="green" delta="per order" />
+        <Kpi label="Orders / User" value={ordersPerUser.toFixed(1)} color="gold" delta="all-time average" />
+        <Kpi label="Registered Users" value={fmtNum(data.meta.total_users)} color="purple" delta="demographic base" />
       </div>
 
       <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
@@ -68,7 +68,7 @@ export default function Customers({ f }) {
       </div>
 
       <div className="grid cols" style={{ gridTemplateRows: "auto auto auto auto" }}>
-        <Card title="Gender â€” Revenue Split" subt="Male vs Female spend" className="w33">
+        <Card title="Gender — Revenue Split" subt="Male vs Female spend" className="w33">
           <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie data={genderRows} dataKey="revenue" nameKey="gender" innerRadius={55} outerRadius={85} paddingAngle={4} isAnimationActive={false}>
@@ -82,7 +82,7 @@ export default function Customers({ f }) {
           </ResponsiveContainer>
         </Card>
 
-        <Card title="Age Group â€” Spend" subt="18â€“21 Â· 22â€“25 Â· 26â€“29 Â· 30â€“33" className="w33">
+        <Card title="Age Group — Spend" subt="18–21 · 22–25 · 26–29 · 30–33" className="w33">
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={ageRows} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#eeecf5" vertical={false} />
@@ -141,7 +141,7 @@ export default function Customers({ f }) {
             )}
             <Seg note={`Dominant loyalty base: ${loyaltyRows[0]?.loyalty} (${((loyaltyRows[0]?.revenue / Math.max(revenue, 1)) * 100).toFixed(1)}% of revenue)`} />
             <Seg note={`Top occupation: ${occRows[0]?.occ}`} />
-            <Seg note={`${fmtNum(freqRows[1]?.users + freqRows[2]?.users)} users ordered 2â€“9 times â€” the loyalty engine of the platform.`} />
+            <Seg note={`${fmtNum(freqRows[1]?.users + freqRows[2]?.users)} users ordered 2–9 times — the loyalty engine of the platform.`} />
             <Seg note="VIP program recommended: top 10% of users generate ~80% of sales." />
           </div>
         </Card>

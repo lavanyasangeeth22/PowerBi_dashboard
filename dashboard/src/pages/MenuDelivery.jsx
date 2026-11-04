@@ -15,7 +15,7 @@ const PRICE_BAND_META = [
 const DELIVERY_KPI = [
   { label: "Avg Delivery Time", value: "32 min", sub: "metro average" },
   { label: "On-time Delivery", value: "91.4%", sub: "target 90%" },
-  { label: "Fleet Utilisation", value: "78%", sub: "peak 96% (8â€“10 PM)" },
+  { label: "Fleet Utilisation", value: "78%", sub: "peak 96% (8–10 PM)" },
   { label: "Cancelled Orders", value: "4.7%", sub: "mostly at peak load" },
 ];
 
@@ -43,10 +43,10 @@ export default function MenuDelivery({ f }) {
   return (
     <>
       <div className="grid kpis">
-        <Kpi label="Menu Lines" value={fmtNum(data.meta.total_menu_items)} delta="restaurant Ã— dish mappings" icon="ðŸ½ï¸" />
-        <Kpi label="Veg vs Non-veg" value="72.9% / 27.1%" color="green" delta="catalogue split" icon="ðŸ¥—" />
-        <Kpi label="Median Menu Price" value="â‚¹160" color="gold" delta="across all outlets" icon="ðŸ›’" />
-        <Kpi label="Most Valuable Band" value="Value (100-200)" color="purple" delta="38% of menu lines" icon="ðŸ’Ž" />
+        <Kpi label="Menu Lines" value={fmtNum(data.meta.total_menu_items)} delta="restaurant × dish mappings" />
+        <Kpi label="Veg vs Non-veg" value="72.9% / 27.1%" color="green" delta="catalogue split" />
+        <Kpi label="Median Menu Price" value="₹160" color="gold" delta="across all outlets" />
+        <Kpi label="Most Valuable Band" value="Value (100-200)" color="purple" delta="38% of menu lines" />
       </div>
 
       <div className="grid cols" style={{ gridTemplateRows: "auto auto" }}>
@@ -63,8 +63,8 @@ export default function MenuDelivery({ f }) {
           <ResponsiveContainer width="100%" height={150}>
             <BarChart
               data={[
-                { h: "10â€“12A", v: 12 }, { h: "6â€“9A", v: 21 }, { h: "9â€“12P", v: 78 }, { h: "12â€“3P", v: 88 },
-                { h: "3â€“6P", v: 41 }, { h: "6â€“9P", v: 96 }, { h: "9â€“12P", v: 57 },
+                { h: "10–12A", v: 12 }, { h: "6–9A", v: 21 }, { h: "9–12P", v: 78 }, { h: "12–3P", v: 88 },
+                { h: "3–6P", v: 41 }, { h: "6–9P", v: 96 }, { h: "9–12P", v: 57 },
               ]}
               margin={{ top: 4, right: 8, left: 0, bottom: 0 }}
             >
@@ -79,14 +79,23 @@ export default function MenuDelivery({ f }) {
               </Bar>
             </BarChart>
           </ResponsiveContainer>
-          <div style={{ fontSize: 11, color: "#7a7790" }}>Peak-load signal: 6â€“9 PM â€” plan fleet capacity accordingly.</div>
+          <div style={{ fontSize: 11, color: "#7a7790" }}>Peak-load signal: 6–9 PM — plan fleet capacity accordingly.</div>
         </Card>
 
         <Card title="Delivery Fleet" subt="Rider ops at a glance" className="w25">
-          <div style={{ display: "flex", flexDirection: "column", gap: 10, alignItems: "center" }}>
-            <img src="/img/delivery.png" alt="delivery" style={{ width: 120, borderRadius: 12 }} />
-            <div style={{ fontSize: 12.5, color: "#5a5670", textAlign: "center", lineHeight: 1.5 }}>
-              Rider supply synchronised with the 6â€“9 PM demand spike keeps <b>on-time %</b> above target.
+          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+            {[
+              { metric: "Active riders (peak)", value: "12,400" },
+              { metric: "Avg deliveries / rider / day", value: "21" },
+              { metric: "10-min pickup timer", value: "87%" },
+            ].map((row) => (
+              <div key={row.metric} style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline", fontSize: 12.5 }}>
+                <span style={{ color: "#7a7790" }}>{row.metric}</span>
+                <b style={{ fontSize: 15 }}>{row.value}</b>
+              </div>
+            ))}
+            <div style={{ fontSize: 12, color: "#5a5670", lineHeight: 1.5, borderTop: "1px solid #efedf5", paddingTop: 10 }}>
+              Fleet supply is synchronised with the 6–9 PM demand spike, keeping <b>on-time delivery</b> above target.
             </div>
             <div style={{ display: "flex", gap: 8 }}>
               <span className="pill g">On-time 91.4%</span>
@@ -95,7 +104,7 @@ export default function MenuDelivery({ f }) {
           </div>
         </Card>
 
-        <Card title="Best-Selling Dishes" subt="Estimated order demand from menu presence Ã— price" className="w50">
+        <Card title="Best-Selling Dishes" subt="Estimated order demand from menu presence × price" className="w50">
           <ResponsiveContainer width="100%" height={260}>
             <BarChart data={dishes} layout="vertical" margin={{ top: 4, right: 16, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#eeecf5" horizontal={false} />
@@ -140,12 +149,12 @@ export default function MenuDelivery({ f }) {
             </PieChart>
           </ResponsiveContainer>
           <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-            <img src="/img/veg.png" alt="veg" style={{ height: 46, borderRadius: 8 }} />
-            <img src="/img/nonveg.png" alt="non veg" style={{ height: 46, borderRadius: 8 }} />
+            
+            
           </div>
         </Card>
 
-        <Card title="Cuisine Revenue â€” top 10" subt="With typical price band" className="w50">
+        <Card title="Cuisine Revenue — top 10" subt="With typical price band" className="w50">
           <table className="dtable">
             <thead>
               <tr><th></th><th>Cuisine</th><th>Revenue</th><th>Orders</th></tr>

@@ -47,17 +47,17 @@ export default function Sales({ f }) {
   return (
     <>
       <div className="grid kpis">
-        <Kpi label="Gross Sales" value={fmtINR(tot.revenue)} delta="all filtered orders" icon="ðŸ’°" />
-        <Kpi label="Orders" value={fmtNum(tot.orders)} delta="transactions" color="blue" icon="ðŸ§¾" />
-        <Kpi label="Avg Order Value" value={fmtINR(tot.aov)} delta="revenue per order" color="green" icon="ðŸ§®" />
+        <Kpi label="Gross Sales" value={fmtINR(tot.revenue)} delta="all filtered orders" />
+        <Kpi label="Orders" value={fmtNum(tot.orders)} delta="transactions" color="blue" />
+        <Kpi label="Avg Order Value" value={fmtINR(tot.aov)} delta="revenue per order" color="green" />
         <Kpi label="Peak Month" value={(()=> {
           const peak = trend.reduce((a, t) => (t.revenue > (a?.revenue ?? -1) ? t : a), null);
-          return peak ? peak.label : "â€“";
-        })()} delta="highest revenue month" color="gold" icon="ðŸ“…" />
+          return peak ? peak.label : "–";
+        })()} delta="highest revenue month" color="gold" />
       </div>
 
       <div className="grid cols" style={{ gridTemplateRows: "auto auto auto auto" }}>
-        <Card title="Revenue & Orders â€” Monthly" subt="Combo view with MoM growth %" className="w66">
+        <Card title="Revenue & Orders — Monthly" subt="Combo view with MoM growth %" className="w66">
           <ResponsiveContainer width="100%" height={280}>
             <ComposedChart data={trendWithGrowth} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
               <defs>
@@ -94,7 +94,7 @@ export default function Sales({ f }) {
           </ResponsiveContainer>
         </Card>
 
-        <Card title="Orders by City â€” Top 10" subt="Volume leaders (orders, not â‚¹)" className="w66">
+        <Card title="Orders by City — Top 10" subt="Volume leaders (orders, not ₹)" className="w66">
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={byCity} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#eeecf5" vertical={false} />
@@ -106,7 +106,7 @@ export default function Sales({ f }) {
           </ResponsiveContainer>
         </Card>
 
-        <Card title="Seasonality â€” by Quarter" subt="Aggregate revenue across all years" className="w33">
+        <Card title="Seasonality — by Quarter" subt="Aggregate revenue across all years" className="w33">
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={byQuarter} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#eeecf5" vertical={false} />
@@ -139,10 +139,10 @@ export default function Sales({ f }) {
                   <td>
                     {t.growth != null ? (
                       <span className={`pill ${t.growth >= 0 ? "g" : "b"}`}>
-                        {t.growth >= 0 ? "â–²" : "â–¼"} {Math.abs(t.growth * 100).toFixed(1)}%
+                        {t.growth >= 0 ? "▲" : "▼"} {Math.abs(t.growth * 100).toFixed(1)}%
                       </span>
                     ) : (
-                      "â€“"
+                      "–"
                     )}
                   </td>
                 </tr>

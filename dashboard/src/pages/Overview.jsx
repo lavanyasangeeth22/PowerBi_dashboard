@@ -46,15 +46,15 @@ export default function Overview({ f, tick }) {
   return (
     <>
       <div className="grid kpis">
-        <Kpi label="Total Revenue" value={fmtINR(kpis.revenue)} delta="sales_value from orders" color="" icon="ðŸ’°" />
-        <Kpi label="Total Orders" value={fmtNum(kpis.orders)} delta="order volume" color="blue" icon="ðŸ§¾" />
-        <Kpi label="Avg Order Value" value={fmtINR(kpis.aov)} delta="per order" color="green" icon="ðŸ§®" />
-        <Kpi label="Avg Rating" value={data.meta.avg_rating} delta={`across ${fmtNum(data.meta.total_rated_restaurants)} rated outlets`} color="gold" icon="â­" />
-        <Kpi label="Active Users" value={fmtNum(data.meta.total_users)} delta="registered profiles" color="purple" icon="ðŸ‘¤" />
+        <Kpi label="Total Revenue" value={fmtINR(kpis.revenue)} delta="sales_value from orders" color="" />
+        <Kpi label="Total Orders" value={fmtNum(kpis.orders)} delta="order volume" color="blue" />
+        <Kpi label="Avg Order Value" value={fmtINR(kpis.aov)} delta="per order" color="green" />
+        <Kpi label="Avg Rating" value={data.meta.avg_rating} delta={`across ${fmtNum(data.meta.total_rated_restaurants)} rated outlets`} color="gold" />
+        <Kpi label="Active Users" value={fmtNum(data.meta.total_users)} delta="registered profiles" color="purple" />
       </div>
 
       <div className="grid cols" style={{ gridTemplateRows: "auto auto auto auto" }}>
-        <Card title="Monthly Revenue Trend" subt="Year-month time intelligence Â· slicer aware" className="w66">
+        <Card title="Monthly Revenue Trend" subt="Year-month time intelligence · slicer aware" className="w66">
           <ResponsiveContainer width="100%" height={260}>
             <AreaChart data={trend} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
               <defs>
@@ -120,7 +120,7 @@ export default function Overview({ f, tick }) {
                 {r.rating_band}
               </span>
             ))}
-            <span style={{ opacity: 0.7 }}>Â· Not Rated: {fmtNum(ratingBands.find((r) => r.rating_band === "Not Rated")?.restaurants)}</span>
+            <span style={{ opacity: 0.7 }}>· Not Rated: {fmtNum(ratingBands.find((r) => r.rating_band === "Not Rated")?.restaurants)}</span>
           </div>
         </Card>
 
@@ -163,9 +163,9 @@ function LiveFeed({ tick, aov, className }) {
       rows.push({
         id: `${now.getTime()}-${i}`,
         icon: ["ðŸ”", "ðŸ•", "ðŸ›", "ðŸ±", "ðŸ¥˜", "ðŸœ"][Math.floor(Math.random() * 6)],
-        title: `Order Â· ${items} item${items > 1 ? "s" : ""} Â· ${fmtINR(amount, false)}`,
+        title: `Order · ${items} item${items > 1 ? "s" : ""} · ${fmtINR(amount, false)}`,
         amount,
-        meta: `${citySlot} Â· ETA ${mins} min`,
+        meta: `${citySlot} · ETA ${mins} min`,
         time: now.toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
       });
     }
@@ -182,7 +182,7 @@ function LiveFeed({ tick, aov, className }) {
           <span className="live-dot" /> {fmtNum(liveOrders)} new
         </span>
       </div>
-      <div className="subt">Simulated realtime stream Â· refresh 2.5s</div>
+      <div className="subt">Simulated realtime stream · refresh 2.5s</div>
       <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
         <div className="card" style={{ flex: 1, boxShadow: "none", background: "#fff7f0" }}>
           <div className="label" style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, color: "#d95a00" }}>TODAY'S REVENUE</div>
@@ -194,10 +194,10 @@ function LiveFeed({ tick, aov, className }) {
         </div>
       </div>
       <div className="livefeed">
-        {feed.length === 0 && <div style={{ fontSize: 12, color: "#7a7790" }}>Listening for ordersâ€¦</div>}
+        {feed.length === 0 && <div style={{ fontSize: 12, color: "#7a7790" }}>Listening for orders…</div>}
         {feed.map((row) => (
           <div key={row.id} className="feedrow">
-            <div className="feedicon">{row.icon}</div>
+            
             <div>
               <div style={{ fontWeight: 600 }}>{row.title}</div>
               <div style={{ color: "#a09db5", fontSize: 10.5 }}>{row.meta}</div>
@@ -219,7 +219,7 @@ function AIInsights({ className }) {
   }, []);
   return (
     <Card className={className}>
-      <h3>ðŸŽ¯ Insights</h3>
+      <h3>Insights</h3>
       <div className="subt">Generated from the dataset with reference to the project brief</div>
       <div key={idx} style={{ minHeight: 66, fontSize: 13.5, lineHeight: 1.55, fontWeight: 500, color: "#3c3a4d", animation: "slidein .5s ease" }}>
         {AI_INSIGHTS[idx]}
@@ -243,9 +243,9 @@ function YoYSnapshot({ f, className }) {
     <Card className={className}>
       <h3>Last-Yr Performance</h3>
       <div className="subt">{last?.key} vs {prev?.key}</div>
-      <div style={{ fontSize: 20, fontWeight: 750 }}>{last ? fmtINR(last.revenue) : "â€“"}</div>
+      <div style={{ fontSize: 20, fontWeight: 750 }}>{last ? fmtINR(last.revenue) : "–"}</div>
       <div className={`delta ${yoy >= 0 ? "up" : "down"}`} style={{ fontSize: 13, marginTop: 6 }}>
-        {yoy >= 0 ? "â–²" : "â–¼"} {Math.abs(yoy * 100).toFixed(1)}% YoY
+        {yoy >= 0 ? "▲" : "▼"} {Math.abs(yoy * 100).toFixed(1)}% YoY
       </div>
       <ResponsiveContainer width="100%" height={90}>
         <ComposedChart data={rows.map((g) => ({ y: g.key, revenue: g.revenue }))}>
@@ -269,11 +269,11 @@ function QtdSnapshot({ trend, className }) {
       <h3>Latest Month</h3>
       <div className="subt">{q ? new Date(q.month + "-01").toLocaleString("en-IN", { month: "long", year: "numeric" }) : ""}</div>
       <div style={{ fontSize: 20, fontWeight: 750 }}>{fmtINR(q?.revenue)}</div>
-      <div className="delta" style={{ fontSize: 13, marginTop: 6, color: "#7a7790" }}>Orders: {fmtNum(q?.orders)} Â· AOV {fmtINR(q?.aov)}</div>
+      <div className="delta" style={{ fontSize: 13, marginTop: 6, color: "#7a7790" }}>Orders: {fmtNum(q?.orders)} · AOV {fmtINR(q?.aov)}</div>
       <div style={{ marginTop: 12, height: 8, background: "#efedf5", borderRadius: 6, overflow: "hidden" }}>
         <div style={{ width: `${Math.min(100, (q?.orders / (trend[0]?.orders || 1)) * 100)}%`, height: "100%", background: "linear-gradient(90deg,#fc8019,#f2b840)" }} />
       </div>
-      <div style={{ fontSize: 11, color: "#7a7790", marginTop: 6 }}>vs first tracked month Â· {fmtNum(trend[0]?.orders)} orders</div>
+      <div style={{ fontSize: 11, color: "#7a7790", marginTop: 6 }}>vs first tracked month · {fmtNum(trend[0]?.orders)} orders</div>
     </Card>
   );
 }

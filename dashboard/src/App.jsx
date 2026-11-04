@@ -7,11 +7,11 @@ import Restaurants from "./pages/Restaurants.jsx";
 import MenuDelivery from "./pages/MenuDelivery.jsx";
 
 const PAGES = [
-  { id: "overview", name: "Executive Overview", icon: "🏠" },
-  { id: "sales", name: "Orders & Revenue", icon: "📈" },
-  { id: "customers", name: "Customer Intelligence", icon: "👥" },
-  { id: "restaurants", name: "Restaurant Performance", icon: "🏪" },
-  { id: "menu", name: "Menu & Operations", icon: "🍽️" },
+  { id: "overview", name: "Executive Overview" },
+  { id: "sales", name: "Orders & Revenue" },
+  { id: "customers", name: "Customer Intelligence" },
+  { id: "restaurants", name: "Restaurant Performance" },
+  { id: "menu", name: "Menu & Operations" },
 ];
 
 const PAGE_SUB = {
@@ -31,7 +31,6 @@ export default function App() {
   const [year, setYear] = useState("All");
   const [cuisine, setCuisine] = useState("All");
   const [tick, setTick] = useState(0);
-
   React.useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 2500);
     return () => clearInterval(id);
@@ -63,23 +62,22 @@ export default function App() {
     <>
       <aside className="sidebar">
         <div className="brand">
-          <img src="/img/logo.png" alt="Swiggy" />
           <div>
-            <div style={{ fontWeight: 800, fontSize: 15, color: "#fff" }}>Sales Dashboard</div>
-            <div className="sub">MIS · Insights</div>
+            <div style={{ fontWeight: 800, fontSize: 16, color: "#fff", letterSpacing: 0.3 }}>Analytics Suite</div>
+            <div className="sub">Food Delivery · MIS</div>
           </div>
         </div>
+        <div className="nav-caption">Dashboard</div>
         <nav className="nav">
           {PAGES.map((p) => (
             <button key={p.id} className={page === p.id ? "active" : ""} onClick={() => setPage(p.id)}>
-              <span className="icon">{p.icon}</span>
+              <span className="nav-idx">{PAGES.indexOf(p) + 1}</span>
               {p.name}
             </button>
           ))}
         </nav>
         <div className="foot">
-          Swiggy-style MIS dashboard · built from the public Swiggy dataset (2017–2020). Educational
-          project, not affiliated with Swiggy.
+          Built on the public Swiggy food-delivery dataset (2017–2020) for analytical training purposes.
         </div>
       </aside>
 
@@ -90,7 +88,7 @@ export default function App() {
             <div className="crumb">{sub}</div>
           </div>
           <span className="live-badge">
-            <span className="live-dot" /> LIVE · orders flowing in
+            <span className="live-dot" /> LIVE STREAM
           </span>
           {activeFilterChips.length > 0 && (
             <span style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>

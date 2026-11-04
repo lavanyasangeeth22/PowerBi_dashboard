@@ -36,10 +36,10 @@ export default function Restaurants({ f }) {
   return (
     <>
       <div className="grid kpis">
-        <Kpi label="Partner Restaurants" value={fmtNum(data.meta.total_restaurants)} delta="across all cities" icon="ðŸª" />
-        <Kpi label="Avg Rating" value={data.meta.avg_rating} color="gold" delta={`${fmtNum(ratedCount)} rated outlets`} icon="â­" />
-        <Kpi label="Rated Share" value={`${(ratedShare * 100).toFixed(1)}%`} color="green" delta="of all partners" icon="âœ…" />
-        <Kpi label="Top Earner (scoped)" value={topRest[0] ? shortINR(topRest[0].r) : "â€“"} color="blue" delta={topRest[0]?.n} icon="ðŸ†" />
+        <Kpi label="Partner Restaurants" value={fmtNum(data.meta.total_restaurants)} delta="across all cities" />
+        <Kpi label="Avg Rating" value={data.meta.avg_rating} color="gold" delta={`${fmtNum(ratedCount)} rated outlets`} />
+        <Kpi label="Rated Share" value={`${(ratedShare * 100).toFixed(1)}%`} color="green" delta="of all partners" />
+        <Kpi label="Top Earner (scoped)" value={topRest[0] ? shortINR(topRest[0].r) : "–"} color="blue" delta={topRest[0]?.n} />
       </div>
 
       <div className="grid cols" style={{ gridTemplateRows: "auto auto auto" }}>
@@ -78,13 +78,13 @@ export default function Restaurants({ f }) {
           </ResponsiveContainer>
         </Card>
 
-        <Card title="Avg Rating by City â€” Top 12 Markets" subt="Market depth vs satisfaction" className="w50">
+        <Card title="Avg Rating by City — Top 12 Markets" subt="Market depth vs satisfaction" className="w50">
           <ResponsiveContainer width="100%" height={250}>
             <BarChart data={ratingCity} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#eeecf5" vertical={false} />
               <XAxis dataKey="city" {...axisProps()} interval={0} angle={-16} textAnchor="end" height={58} tick={{ fontSize: 10, fill: "#7a7790" }} />
               <YAxis {...axisProps()} tick={{ fontSize: 11, fill: "#7a7790" }} domain={[0, 5]} />
-              <Tooltip formatter={(v, n) => (n === "avg_rating" ? `${v.toFixed(2)} â˜…` : fmtNum(v))} cursor={{ fill: "#fff4eb" }} />
+              <Tooltip formatter={(v, n) => (n === "avg_rating" ? `${v.toFixed(2)} ★` : fmtNum(v))} cursor={{ fill: "#fff4eb" }} />
               <Bar isAnimationActive={false} dataKey="avg_rating" barSize={26} fill="#f2b840" radius={[7, 7, 0, 0]} />
             </BarChart>
           </ResponsiveContainer>
@@ -107,7 +107,7 @@ export default function Restaurants({ f }) {
                   <td><span className={`rank ${i < 3 ? "top3" : ""}`}>{i + 1}</span></td>
                   <td style={{ fontWeight: 600 }}>{m.city}</td>
                   <td>{fmtNum(m.restaurants)}</td>
-                  <td>{m.avg_rating ? m.avg_rating.toFixed(2) : "â€“"}</td>
+                  <td>{m.avg_rating ? m.avg_rating.toFixed(2) : "–"}</td>
                   <td>{fmtNum(m.rating_mins)}</td>
                 </tr>
               ))}
@@ -115,7 +115,7 @@ export default function Restaurants({ f }) {
           </table>
         </Card>
 
-        <Card title="Revenue vs Rating â€” Safecorner" subt="Bigger bubble = more revenue (top 120 partners, scoped)" className="w100">
+        <Card title="Revenue vs Rating — Safecorner" subt="Bigger bubble = more revenue (top 120 partners, scoped)" className="w100">
           <ResponsiveContainer width="100%" height={230}>
             <ScatterChart margin={{ top: 8, right: 12, left: 0, bottom: 4 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#eeecf5" />
@@ -138,11 +138,11 @@ function RestToolTip({ active, payload }) {
   return (
     <div className="chart-tip">
       <div style={{ fontWeight: 700 }}>{d.name ?? d.label ?? d.city}</div>
-      {d.rt != null && <div>Rating: <b>{d.rt ? `${d.rt} â˜…` : "Not rated"}</b></div>}
+      {d.rt != null && <div>Rating: <b>{d.rt ? `${d.rt} ★` : "Not rated"}</b></div>}
       {d.r != null && <div>Revenue: <b>{fmtINR(d.r, false)}</b></div>}
       {d.o != null && <div>Orders: <b>{fmtNum(d.o)}</b></div>}
       {d.restaurants != null && <div>Partners: <b>{fmtNum(d.restaurants)}</b></div>}
-      {d.avg_rating != null && <div>Avg Rating: <b>{d.avg_rating} â˜…</b></div>}
+      {d.avg_rating != null && <div>Avg Rating: <b>{d.avg_rating} ★</b></div>}
     </div>
   );
 }
