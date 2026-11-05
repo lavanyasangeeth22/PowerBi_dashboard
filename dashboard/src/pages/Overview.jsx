@@ -185,11 +185,11 @@ function LiveFeed({ tick, aov, className }) {
       <div className="subt">Simulated realtime stream · refresh 2.5s</div>
       <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
         <div className="card" style={{ flex: 1, boxShadow: "none", background: "#fff7f0" }}>
-          <div className="label" style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, color: "#d95a00" }}>TODAY'S REVENUE</div>
+          <div className="label" style={{ fontSize: 11.5, fontWeight: 600, color: "#d95a00" }}>Today's revenue</div>
           <div style={{ fontSize: 18, fontWeight: 750 }}>{fmtINR(liveRev, false)}</div>
         </div>
         <div className="card" style={{ flex: 1, boxShadow: "none", background: "#f2f6ff" }}>
-          <div className="label" style={{ fontSize: 10, fontWeight: 700, letterSpacing: 1, color: "#4c6fff" }}>TODAY'S ORDERS</div>
+          <div className="label" style={{ fontSize: 11.5, fontWeight: 600, color: "#4c6fff" }}>Today's orders</div>
           <div style={{ fontSize: 18, fontWeight: 750 }}>{fmtNum(liveOrders)}</div>
         </div>
       </div>

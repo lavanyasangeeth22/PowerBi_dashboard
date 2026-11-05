@@ -63,7 +63,7 @@ export default function App() {
       <aside className="sidebar">
         <div className="brand">
           <div>
-            <div style={{ fontWeight: 800, fontSize: 16, color: "#fff", letterSpacing: 0.3 }}>Analytics Suite</div>
+            <div style={{ fontWeight: 700, fontSize: 17, color: "#fff", fontFamily: "'Space Grotesk', Manrope, sans-serif" }}>Analytics Suite</div>
             <div className="sub">Food Delivery · MIS</div>
           </div>
         </div>

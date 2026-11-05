@@ -17,7 +17,8 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  font-family: "Manrope", "Segoe UI", system-ui, sans-serif;
+  font-feature-settings: "tnum" 1;
   background: var(--bg);
   color: var(--ink);
   overflow-x: hidden;
@@ -45,12 +46,11 @@ body {
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 .nav-caption {
-  font-size: 9.5px;
-  font-weight: 700;
-  letter-spacing: 2px;
-  text-transform: uppercase;
-  opacity: 0.45;
-  padding: 14px 24px 4px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0;
+  opacity: 0.5;
+  padding: 16px 24px 4px;
 }
 .nav { padding: 4px 10px 10px; display: flex; flex-direction: column; gap: 2px; }
 .nav button {
@@ -87,19 +87,18 @@ body {
 .main { flex: 1; min-width: 0; padding: 22px 26px 40px; }
 
 .topbar { display: flex; align-items: center; gap: 16px; margin-bottom: 18px; flex-wrap: wrap; }
-.topbar h1 { font-size: 21px; font-weight: 700; }
+.topbar h1 { font-size: 22px; font-weight: 700; font-family: "Space Grotesk", "Manrope", sans-serif; }
 .topbar .crumb { color: var(--muted); font-size: 12px; }
 .live-badge {
   display: inline-flex; align-items: center; gap: 7px;
   background: #ffe9d6; color: #d95a00; border: 1px solid #ffc99b;
   padding: 5px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 700;
 }
-.live-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--swiggy-orange); animation: pulse 1.4s infinite; }
-@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(252,128,25,.55);} 70% { box-shadow: 0 0 0 8px rgba(252,128,25,0);} 100% { box-shadow: 0 0 0 0 rgba(252,128,25,0);} }
+.live-dot { width: 7px; height: 7px; border-radius: 50%; background: #d95a00; }
 
 .slicers { display: flex; gap: 10px; margin-left: auto; flex-wrap: wrap; }
 .slicer { display: flex; flex-direction: column; gap: 3px; }
-.slicer label { font-size: 10px; font-weight: 700; letter-spacing: 1px; color: var(--muted); text-transform: uppercase; }
+.slicer label { font-size: 11.5px; font-weight: 600; color: var(--muted); }
 .slicer select {
   appearance: none; border: 1px solid #e3e2ea; background: #fff; border-radius: 9px;
   padding: 7px 32px 7px 12px; font-size: 12.5px; font-weight: 600; color: var(--ink);
@@ -117,8 +116,8 @@ body {
   box-shadow: 0 1px 2px rgba(28, 26, 39, 0.05), 0 4px 14px rgba(28, 26, 39, 0.05);
 }
 .kpi { display: flex; flex-direction: column; gap: 6px; position: relative; overflow: hidden; }
-.kpi .label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--muted); }
-.kpi .value { font-size: 24px; font-weight: 750; letter-spacing: -0.5px; }
+.kpi .label { font-size: 12.5px; font-weight: 600; color: var(--muted); }
+.kpi .value { font-size: 25px; font-weight: 700; letter-spacing: -0.3px; font-family: "Space Grotesk", "Manrope", sans-serif; }
 .kpi .delta { font-size: 11.5px; font-weight: 600; color: var(--muted); display: flex; gap: 6px; align-items: center; }
 .kpi .delta.up { color: var(--green); }
 .kpi .delta.down { color: var(--red); }
@@ -128,7 +127,7 @@ body {
 .kpi .stripe.purple { background: var(--purple); }
 .kpi .stripe.gold { background: var(--gold); }
 
-.card h3 { font-size: 13.5px; font-weight: 700; margin-bottom: 4px; }
+.card h3 { font-size: 14px; font-weight: 700; margin-bottom: 4px; font-family: "Space Grotesk", "Manrope", sans-serif; }
 .card .subt { font-size: 11px; color: var(--muted); margin-bottom: 12px; }
 .w33 { grid-column: span 4; } .w50 { grid-column: span 6; } .w66 { grid-column: span 8; } .w100 { grid-column: span 12; }
 .w25 { grid-column: span 3; } .w75 { grid-column: span 9; }
@@ -139,7 +138,7 @@ body {
 .chart-tip b { color: #ffb471; }
 
 table.dtable { width: 100%; border-collapse: collapse; font-size: 12.5px; }
-table.dtable th { text-align: left; font-size: 10.5px; letter-spacing: 1px; text-transform: uppercase; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid #efedf5; }
+table.dtable th { text-align: left; font-size: 11.5px; font-weight: 600; letter-spacing: 0; color: var(--muted); padding: 8px 10px; border-bottom: 1px solid #efedf5; }
 table.dtable td { padding: 9px 10px; border-bottom: 1px solid #f6f5fa; }
 table.dtable tr:hover td { background: #fff8f3; }
 .rank { display: inline-flex; align-items: center; justify-content: center; width: 24px; height: 24px; border-radius: 7px; background: #f1effa; font-weight: 700; font-size: 11px; color: #6b5dd3; }

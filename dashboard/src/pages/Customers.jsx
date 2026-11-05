@@ -53,7 +53,7 @@ export default function Customers({ f }) {
       </div>
 
       <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
-        <span style={{ fontSize: 11, fontWeight: 700, color: "#7a7790", alignSelf: "center", textTransform: "uppercase", letterSpacing: 1 }}>Local filters:</span>
+        <span style={{ fontSize: 11, fontWeight: 700, color: "#7a7790", alignSelf: "center" }}>Local filters:</span>
         {["All", "Male", "Female"].map((g) => (
           <button key={g} className={`pill ${gender === g ? "o" : "b"}`} style={{ cursor: "pointer", border: "none" }} onClick={() => setGender(g)}>
             {g}

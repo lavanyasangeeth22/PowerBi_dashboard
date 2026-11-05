@@ -54,7 +54,7 @@ export default function MenuDelivery({ f }) {
           <div style={{ display: "flex", gap: 14, flexWrap: "wrap", marginBottom: 14 }}>
             {DELIVERY_KPI.map((k) => (
               <div key={k.label} className="card" style={{ flex: "1 1 150px", boxShadow: "none", background: "#fbfaff" }}>
-                <div style={{ fontSize: 10.5, fontWeight: 700, letterSpacing: 1, color: "#7a7790", textTransform: "uppercase" }}>{k.label}</div>
+                <div style={{ fontSize: 11.5, fontWeight: 600, color: "#7a7790" }}>{k.label}</div>
                 <div style={{ fontSize: 19, fontWeight: 750 }}>{k.value}</div>
                 <div style={{ fontSize: 11, color: "#a09db5" }}>{k.sub}</div>
               </div>
