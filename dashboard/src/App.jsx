@@ -111,9 +111,6 @@ export default function App() {
             <h1>{PAGES.find((p) => p.id === page)?.name}</h1>
             <div className="crumb">{sub}</div>
           </div>
-          <span className="live-badge">
-            <span className="live-dot" /> LIVE STREAM
-          </span>
           {activeFilterChips.length > 0 && (
             <span style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
               {activeFilterChips.map((c) => (

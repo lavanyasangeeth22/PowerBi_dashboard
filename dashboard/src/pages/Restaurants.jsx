@@ -2,7 +2,7 @@
 import {
   Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Scatter, ScatterChart, Tooltip, XAxis, YAxis, ZAxis,
 } from "recharts";
-import { Card, Kpi, axisProps, axisYShort } from "../components.jsx";
+import { Card, Kpi, axisProps, axisYShort, useChartPick } from "../components.jsx";
 import { PALETTE } from "../store.js";
 import { fmtINR, fmtNum, shortINR, shortNum } from "../utils.js";
 
@@ -49,6 +49,10 @@ export default function Restaurants({ f }) {
     [f],
   );
 
+  const topPick = useChartPick(topRest.map((d) => d.n).join("|"));
+  const bandPick = useChartPick(rated.map((d) => d.rating_band).join("|"));
+  const cityRatingPick = useChartPick(ratingCity.map((d) => d.city).join("|"));
+
   return (
     <>
       <div className="grid kpis">
@@ -73,7 +77,7 @@ export default function Restaurants({ f }) {
               <Tooltip content={<RestToolTip />} cursor={{ fill: "#fff4eb" }} />
               <Bar isAnimationActive={false} dataKey="r" barSize={17} radius={[0, 6, 6, 0]}>
                 {topRest.map((_, i) => (
-                  <Cell key={i} fill={i === 0 ? "#fc8019" : PALETTE[(i + 1) % PALETTE.length]} />
+                  <Cell key={i} fill={i === 0 ? "#fc8019" : PALETTE[(i + 1) % PALETTE.length]} {...topPick.cellProps(i)} />
                 ))}
               </Bar>
             </BarChart>
@@ -91,8 +95,8 @@ export default function Restaurants({ f }) {
               <YAxis {...axisYShort(shortNum)} />
               <Tooltip formatter={(v) => fmtNum(v)} cursor={{ fill: "#fff4eb" }} />
               <Bar isAnimationActive={false} dataKey="n" barSize={30} radius={[7, 7, 0, 0]}>
-                {rated.map((r) => (
-                  <Cell key={r.rating_band} fill={BAND_COLORS[BAND_ORDER.indexOf(r.rating_band)]} />
+                {rated.map((r, i) => (
+                  <Cell key={r.rating_band} fill={BAND_COLORS[BAND_ORDER.indexOf(r.rating_band)]} {...bandPick.cellProps(i)} />
                 ))}
               </Bar>
             </BarChart>
@@ -106,7 +110,11 @@ export default function Restaurants({ f }) {
               <XAxis dataKey="city" {...axisProps()} interval={0} angle={-16} textAnchor="end" height={58} tick={{ fontSize: 10, fill: "#7a7790" }} />
               <YAxis {...axisProps()} tick={{ fontSize: 11, fill: "#7a7790" }} domain={[0, 5]} />
               <Tooltip formatter={(v, n) => (n === "avg_rating" ? `${v.toFixed(2)} ★` : fmtNum(v))} cursor={{ fill: "#fff4eb" }} />
-              <Bar isAnimationActive={false} dataKey="avg_rating" barSize={26} fill="#f2b840" radius={[7, 7, 0, 0]} />
+              <Bar isAnimationActive={false} dataKey="avg_rating" barSize={26} radius={[7, 7, 0, 0]}>
+                {ratingCity.map((_, i) => (
+                  <Cell key={i} fill="#f2b840" {...cityRatingPick.cellProps(i)} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </Card>

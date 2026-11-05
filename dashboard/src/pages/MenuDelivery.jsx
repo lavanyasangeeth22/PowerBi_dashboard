@@ -1,6 +1,6 @@
 ﻿import React, { useMemo } from "react";
 import { Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
-import { Card, Kpi, axisProps, axisYShort } from "../components.jsx";
+import { Card, Kpi, axisProps, axisYShort, useChartPick } from "../components.jsx";
 import { groupSum, PALETTE } from "../store.js";
 import { fmtINR, fmtNum, shortINR } from "../utils.js";
 
@@ -17,6 +17,11 @@ const DELIVERY_KPI = [
   { label: "On-time Delivery", value: "91.4%", sub: "target 90%" },
   { label: "Fleet Utilisation", value: "78%", sub: "peak 96% (8–10 PM)" },
   { label: "Cancelled Orders", value: "4.7%", sub: "mostly at peak load" },
+];
+
+const OPS_HOURS = [
+  { h: "10–12A", v: 12 }, { h: "6–9A", v: 21 }, { h: "9–12P", v: 78 }, { h: "12–3P", v: 88 },
+  { h: "3–6P", v: 41 }, { h: "6–9P", v: 96 }, { h: "9–12P", v: 57 },
 ];
 
 export default function MenuDelivery({ f }) {
@@ -44,6 +49,15 @@ export default function MenuDelivery({ f }) {
     () => groupSum(f.tcc, (r) => r.cu).sort((a, b) => b.revenue - a.revenue).slice(0, 10),
     [f],
   );
+
+  const vegRows = [
+    { name: "Veg", value: slice.veg },
+    { name: "Non-veg", value: slice.nonveg },
+  ];
+  const opsPick = useChartPick(OPS_HOURS.map((d) => d.h).join("|"));
+  const dishPick = useChartPick(dishes.map((d) => d.item).join("|"));
+  const vegPick = useChartPick(`${slice.veg}|${slice.nonveg}`);
+  const bandPick = useChartPick(bandRows.map((d) => d.band).join("|"));
 
   return (
     <>
@@ -74,10 +88,7 @@ export default function MenuDelivery({ f }) {
           </div>
           <ResponsiveContainer width="100%" height={150}>
             <BarChart
-              data={[
-                { h: "10–12A", v: 12 }, { h: "6–9A", v: 21 }, { h: "9–12P", v: 78 }, { h: "12–3P", v: 88 },
-                { h: "3–6P", v: 41 }, { h: "6–9P", v: 96 }, { h: "9–12P", v: 57 },
-              ]}
+              data={OPS_HOURS}
               margin={{ top: 4, right: 8, left: 0, bottom: 0 }}
             >
               <CartesianGrid strokeDasharray="3 3" stroke="#eeecf5" vertical={false} />
@@ -85,8 +96,8 @@ export default function MenuDelivery({ f }) {
               <YAxis {...axisProps()} domain={[0, 100]} tickFormatter={(v) => `${v}%`} />
               <Tooltip formatter={(v) => `${v}% capacity`} cursor={{ fill: "#fff4eb" }} />
               <Bar isAnimationActive={false} dataKey="v" name="load" barSize={26} radius={[6, 6, 0, 0]}>
-                {[...Array(7)].map((_, i) => (
-                  <Cell key={i} fill={i === 5 ? "#e05b00" : "#f7c48a"} />
+                {OPS_HOURS.map((_, i) => (
+                  <Cell key={i} fill={i === 5 ? "#e05b00" : "#f7c48a"} {...opsPick.cellProps(i)} />
                 ))}
               </Bar>
             </BarChart>
@@ -129,7 +140,7 @@ export default function MenuDelivery({ f }) {
               />
               <Bar isAnimationActive={false} dataKey="listings" barSize={15} radius={[0, 6, 6, 0]}>
                 {dishes.map((_, i) => (
-                  <Cell key={i} fill={PALETTE[i % PALETTE.length]} />
+                  <Cell key={i} fill={PALETTE[i % PALETTE.length]} {...dishPick.cellProps(i)} />
                 ))}
               </Bar>
             </BarChart>
@@ -138,8 +149,16 @@ export default function MenuDelivery({ f }) {
 
         <Card title="Price Band Structure" subt="Menu price segmentation in scope" className="w25">
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {bandRows.map((b) => (
-              <div key={b.band}>
+            {bandRows.map((b, i) => (
+              <div
+                key={b.band}
+                onClick={() => bandPick.toggle(i)}
+                style={{
+                  cursor: "pointer",
+                  opacity: bandPick.pick == null || bandPick.pick === i ? 1 : 0.3,
+                  transition: "opacity .18s ease",
+                }}
+              >
                 <div style={{ display: "flex", justifyContent: "space-between", fontSize: 11.5, marginBottom: 3 }}>
                   <b>{b.band}</b>
                   <span style={{ color: "#7a7790" }}>{b.share.toFixed(0)}%</span>
@@ -156,9 +175,9 @@ export default function MenuDelivery({ f }) {
         <Card title="Veg vs Non-veg Mix" subt="Catalogue-level split in scope" className="w25">
           <ResponsiveContainer width="100%" height={200}>
             <PieChart>
-              <Pie data={[{ name: "Veg", value: slice.veg }, { name: "Non-veg", value: slice.nonveg }]} dataKey="value" nameKey="name" innerRadius={46} outerRadius={74} paddingAngle={4} isAnimationActive={false}>
-                <Cell fill="#22b07d" />
-                <Cell fill="#e64545" />
+              <Pie data={vegRows} dataKey="value" nameKey="name" innerRadius={46} outerRadius={74} paddingAngle={4} isAnimationActive={false}>
+                <Cell fill="#22b07d" {...vegPick.cellProps(0)} />
+                <Cell fill="#e64545" {...vegPick.cellProps(1)} />
               </Pie>
               <Tooltip formatter={(v) => `${fmtNum(v)} lines`} />
               <Legend wrapperStyle={{ fontSize: 11.5 }} />

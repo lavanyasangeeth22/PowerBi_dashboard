@@ -3,7 +3,7 @@ import {
   Bar, BarChart, CartesianGrid, Cell, ComposedChart, Legend, Line, ResponsiveContainer,
   Tooltip, XAxis, YAxis, Area,
 } from "recharts";
-import { Card, Kpi, ToolTip, axisProps, axisYShort } from "../components.jsx";
+import { Card, Kpi, ToolTip, axisProps, axisYShort, useChartPick } from "../components.jsx";
 import { groupSum, monthly } from "../store.js";
 import { fmtINR, fmtNum, shortINR, shortNum } from "../utils.js";
 
@@ -43,6 +43,10 @@ export default function Sales({ f }) {
   });
 
   const monthlyTable = useMemo(() => [...trendWithGrowth].reverse().slice(0, 14), [trendWithGrowth]);
+
+  const yearPick = useChartPick(byYear.map((d) => d.year).join("|"));
+  const cityPick = useChartPick(byCity.map((d) => d.city).join("|"));
+  const quarterPick = useChartPick(byQuarter.map((d) => d.quarter).join("|"));
 
   return (
     <>
@@ -87,7 +91,7 @@ export default function Sales({ f }) {
               <Tooltip content={<ToolTip />} cursor={{ fill: "#fff4eb" }} />
               <Bar isAnimationActive={false} dataKey="revenue" barSize={38} radius={[8, 8, 0, 0]}>
                 {byYear.map((_, i) => (
-                  <Cell key={i} fill={["#ffd9b8", "#fc8019", "#e05b00", "#9b51e0"][i % 4]} />
+                  <Cell key={i} fill={["#ffd9b8", "#fc8019", "#e05b00", "#9b51e0"][i % 4]} {...yearPick.cellProps(i)} />
                 ))}
               </Bar>
             </BarChart>
@@ -101,7 +105,11 @@ export default function Sales({ f }) {
               <XAxis dataKey="city" {...axisProps()} interval={0} angle={-14} textAnchor="end" height={52} />
               <YAxis {...axisYShort(shortNum)} />
               <Tooltip content={<ToolTip />} cursor={{ fill: "#fff4eb" }} />
-              <Bar isAnimationActive={false} dataKey="orders" fill="#6b5dd3" radius={[7, 7, 0, 0]} barSize={22} />
+              <Bar isAnimationActive={false} dataKey="orders" radius={[7, 7, 0, 0]} barSize={22}>
+                {byCity.map((_, i) => (
+                  <Cell key={i} fill="#6b5dd3" {...cityPick.cellProps(i)} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </Card>
@@ -113,7 +121,11 @@ export default function Sales({ f }) {
               <XAxis dataKey="quarter" {...axisProps()} />
               <YAxis {...axisYShort(shortINR)} />
               <Tooltip content={<ToolTip />} cursor={{ fill: "#fff4eb" }} />
-              <Bar isAnimationActive={false} dataKey="revenue" fill="#22b07d" barSize={40} radius={[7, 7, 0, 0]} />
+              <Bar isAnimationActive={false} dataKey="revenue" barSize={40} radius={[7, 7, 0, 0]}>
+                {byQuarter.map((_, i) => (
+                  <Cell key={i} fill="#22b07d" {...quarterPick.cellProps(i)} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </Card>

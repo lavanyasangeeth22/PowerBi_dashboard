@@ -3,7 +3,7 @@ import {
   Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ComposedChart, Line, LineChart,
   Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
-import { Card, Kpi, ToolTip, axisProps, axisYShort } from "../components.jsx";
+import { Card, Kpi, ToolTip, axisProps, axisYShort, useChartPick } from "../components.jsx";
 import { groupSum, monthly, AI_INSIGHTS, PALETTE, data, DAY_ORDER } from "../store.js";
 import { fmtINR, fmtNum, shortINR } from "../utils.js";
 
@@ -50,6 +50,11 @@ export default function Overview({ f, tick }) {
     [f],
   );
   const ratedTotal = ratingBands.filter((r) => r.rating_band !== "Not Rated").reduce((a, r) => a + r.restaurants, 0);
+  const pieBands = ratingBands.filter((r) => r.rating_band !== "Not Rated");
+
+  const cityPick = useChartPick(byCity.map((d) => d.city).join("|"));
+  const cuisinePick = useChartPick(byCuisineTop.map((d) => d.cuisine).join("|"));
+  const ratingPick = useChartPick(pieBands.map((d) => d.rating_band).join("|"));
 
   return (
     <>
@@ -96,7 +101,7 @@ export default function Overview({ f, tick }) {
               <Tooltip content={<ToolTip />} cursor={{ fill: "#fff4eb" }} />
               <Bar isAnimationActive={false} dataKey="revenue" radius={[7, 7, 0, 0]}>
                 {byCity.map((_, i) => (
-                  <Cell key={i} fill={PALETTE[i % PALETTE.length]} />
+                  <Cell key={i} fill={PALETTE[i % PALETTE.length]} {...cityPick.cellProps(i)} />
                 ))}
               </Bar>
             </BarChart>
@@ -118,16 +123,16 @@ export default function Overview({ f, tick }) {
         <Card title="Restaurant Rating Distribution" subt="Rating bands in scope · snapshot (year not applicable)" className="w33">
           <ResponsiveContainer width="100%" height={230}>
             <PieChart>
-              <Pie data={ratingBands.filter((r) => r.rating_band !== "Not Rated")} dataKey="restaurants" nameKey="rating_band" innerRadius={52} outerRadius={82} paddingAngle={3} isAnimationActive={false}>
-                {ratingBands.filter((r) => r.rating_band !== "Not Rated").map((r) => (
-                  <Cell key={r.rating_band} fill={BAND_COLORS[BAND_ORDER.indexOf(r.rating_band)]} />
+              <Pie data={pieBands} dataKey="restaurants" nameKey="rating_band" innerRadius={52} outerRadius={82} paddingAngle={3} isAnimationActive={false}>
+                {pieBands.map((r, i) => (
+                  <Cell key={r.rating_band} fill={BAND_COLORS[BAND_ORDER.indexOf(r.rating_band)]} {...ratingPick.cellProps(i)} />
                 ))}
               </Pie>
               <Tooltip formatter={(v) => fmtNum(v)} />
             </PieChart>
           </ResponsiveContainer>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", fontSize: 11, color: "#7a7790" }}>
-            {ratingBands.filter((r) => r.rating_band !== "Not Rated").map((r) => (
+            {pieBands.map((r) => (
               <span key={r.rating_band} style={{ display: "flex", alignItems: "center", gap: 5 }}>
                 <span style={{ width: 9, height: 9, borderRadius: 3, background: BAND_COLORS[BAND_ORDER.indexOf(r.rating_band)] }} />
                 {r.rating_band}
@@ -145,7 +150,11 @@ export default function Overview({ f, tick }) {
               <XAxis type="number" {...axisYShort(shortINR)} />
               <YAxis type="category" dataKey="cuisine" width={82} {...axisProps()} tick={{ fontSize: 10.5, fill: "#7a7790" }} />
               <Tooltip content={<ToolTip key2={null} />} cursor={{ fill: "#fff4eb" }} />
-              <Bar isAnimationActive={false} dataKey="revenue" fill="#22b07d" radius={[0, 6, 6, 0]} barSize={16} />
+              <Bar isAnimationActive={false} dataKey="revenue" radius={[0, 6, 6, 0]} barSize={16}>
+                {byCuisineTop.map((_, i) => (
+                  <Cell key={i} fill="#22b07d" {...cuisinePick.cellProps(i)} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </Card>
@@ -250,6 +259,7 @@ function AIInsights({ className }) {
 /* ---------------- YoY snapshot ---------------- */
 function YoYSnapshot({ f, className }) {
   const rows = useMemo(() => groupSum(f.tcc, (r) => r.y).sort((a, b) => a.key - b.key), [f]);
+  const yearPick = useChartPick(rows.map((g) => g.key).join("|"));
   const last = rows[rows.length - 1];
   const prev = rows[rows.length - 2];
   const yoy = prev ? (last.revenue - prev.revenue) / Math.max(prev.revenue, 1) : 0;
@@ -266,7 +276,7 @@ function YoYSnapshot({ f, className }) {
           <Tooltip content={<ToolTip key2={null} />} />
           <Bar isAnimationActive={false} dataKey="revenue" barSize={26} radius={[6, 6, 0, 0]}>
             {rows.map((_, i) => (
-              <Cell key={i} fill={i === rows.length - 1 ? "#fc8019" : "#ffd9b8"} />
+              <Cell key={i} fill={i === rows.length - 1 ? "#fc8019" : "#ffd9b8"} {...yearPick.cellProps(i)} />
             ))}
           </Bar>
         </ComposedChart>

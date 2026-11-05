@@ -47,6 +47,20 @@ export function Card({ title, subt, children, className = "w50" }) {
   );
 }
 
+export function useChartPick(signature = "") {
+  const [pick, setPick] = React.useState(null);
+  React.useEffect(() => {
+    setPick(null);
+  }, [signature]);
+  const toggle = (i) => setPick((p) => (p === i ? null : i));
+  const cellProps = (i) => ({
+    fillOpacity: pick == null || pick === i ? 1 : 0.22,
+    style: { cursor: "pointer", transition: "fill-opacity .18s ease" },
+    onClick: () => toggle(i),
+  });
+  return { pick, toggle, cellProps };
+}
+
 export function axisProps() {
   return {
     tickLine: false,

@@ -2,7 +2,7 @@
 import {
   Bar, BarChart, CartesianGrid, Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
-import { Card, Kpi, ToolTip, axisProps, axisYShort } from "../components.jsx";
+import { Card, Kpi, ToolTip, axisProps, axisYShort, useChartPick } from "../components.jsx";
 import { groupSum, PALETTE, data } from "../store.js";
 import { fmtINR, fmtNum, shortINR, shortNum } from "../utils.js";
 
@@ -49,6 +49,12 @@ export default function Customers({ f }) {
   );
   const freqRows = data.freq_split.map((r) => ({ freq: r.freq, users: r.users }));
 
+  const genderPick = useChartPick(genderRows.map((d) => d.gender).join("|"));
+  const agePick = useChartPick(ageRows.map((d) => d.age).join("|"));
+  const loyaltyPick = useChartPick(loyaltyRows.map((d) => d.loyalty).join("|"));
+  const occPick = useChartPick(occRows.map((d) => d.occ).join("|"));
+  const freqPick = useChartPick(freqRows.map((d) => d.freq).join("|"));
+
   return (
     <>
       <div className="grid kpis">
@@ -80,7 +86,7 @@ export default function Customers({ f }) {
             <PieChart>
               <Pie data={genderRows} dataKey="revenue" nameKey="gender" innerRadius={55} outerRadius={85} paddingAngle={4} isAnimationActive={false}>
                 {genderRows.map((_, i) => (
-                  <Cell key={i} fill={["#4c6fff", "#ef476f", "#b6b1cc"][i % 3]} />
+                  <Cell key={i} fill={["#4c6fff", "#ef476f", "#b6b1cc"][i % 3]} {...genderPick.cellProps(i)} />
                 ))}
               </Pie>
               <Tooltip content={<ToolTip key2="orders" />} />
@@ -98,7 +104,7 @@ export default function Customers({ f }) {
               <Tooltip content={<ToolTip />} cursor={{ fill: "#fff4eb" }} />
               <Bar isAnimationActive={false} dataKey="revenue" barSize={34} radius={[7, 7, 0, 0]}>
                 {ageRows.map((_, i) => (
-                  <Cell key={i} fill={PALETTE[i % PALETTE.length]} />
+                  <Cell key={i} fill={PALETTE[i % PALETTE.length]} {...agePick.cellProps(i)} />
                 ))}
               </Bar>
             </BarChart>
@@ -112,7 +118,11 @@ export default function Customers({ f }) {
               <XAxis type="number" {...axisYShort(shortINR)} />
               <YAxis type="category" dataKey="loyalty" width={110} {...axisProps()} tick={{ fontSize: 10.5, fill: "#7a7790" }} />
               <Tooltip content={<ToolTip key2={null} />} cursor={{ fill: "#fff4eb" }} />
-              <Bar isAnimationActive={false} dataKey="revenue" barSize={18} fill="#9b51e0" radius={[0, 6, 6, 0]} />
+              <Bar isAnimationActive={false} dataKey="revenue" barSize={18} radius={[0, 6, 6, 0]}>
+                {loyaltyRows.map((_, i) => (
+                  <Cell key={i} fill="#9b51e0" {...loyaltyPick.cellProps(i)} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </Card>
@@ -124,7 +134,11 @@ export default function Customers({ f }) {
               <XAxis type="number" {...axisYShort(shortINR)} />
               <YAxis type="category" dataKey="occ" width={100} {...axisProps()} tick={{ fontSize: 10.5, fill: "#7a7790" }} />
               <Tooltip content={<ToolTip key2={null} />} cursor={{ fill: "#fff4eb" }} />
-              <Bar isAnimationActive={false} dataKey="revenue" barSize={18} fill="#f2b840" radius={[0, 6, 6, 0]} />
+              <Bar isAnimationActive={false} dataKey="revenue" barSize={18} radius={[0, 6, 6, 0]}>
+                {occRows.map((_, i) => (
+                  <Cell key={i} fill="#f2b840" {...occPick.cellProps(i)} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </Card>
@@ -136,7 +150,11 @@ export default function Customers({ f }) {
               <XAxis dataKey="freq" {...axisProps()} />
               <YAxis {...axisYShort(shortNum)} />
               <Tooltip formatter={(v) => fmtNum(v)} cursor={{ fill: "#fff4eb" }} />
-              <Bar isAnimationActive={false} dataKey="users" barSize={38} fill="#2ec4b6" radius={[7, 7, 0, 0]} />
+              <Bar isAnimationActive={false} dataKey="users" barSize={38} radius={[7, 7, 0, 0]}>
+                {freqRows.map((_, i) => (
+                  <Cell key={i} fill="#2ec4b6" {...freqPick.cellProps(i)} />
+                ))}
+              </Bar>
             </BarChart>
           </ResponsiveContainer>
         </Card>
