@@ -62,8 +62,9 @@ export default function App() {
     <>
       <aside className="sidebar">
         <div className="brand">
+          <img src="/img/logo.png" alt="Swiggy" />
           <div>
-            <div style={{ fontWeight: 700, fontSize: 17, color: "#fff", fontFamily: "'Space Grotesk', Manrope, sans-serif" }}>Analytics Suite</div>
+            <div style={{ fontWeight: 700, fontSize: 16, color: "#fff", fontFamily: "'Space Grotesk', Manrope, sans-serif" }}>Analytics Suite</div>
             <div className="sub">Food Delivery · MIS</div>
           </div>
         </div>
