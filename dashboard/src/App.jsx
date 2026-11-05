@@ -22,14 +22,27 @@ const PAGE_SUB = {
   menu: "Food mix, price bands & delivery snapshot",
 };
 
+function initialSelection() {
+  const q = new URLSearchParams(location.search);
+  const city = q.get("city");
+  const year = q.get("year");
+  const cuisine = q.get("cuisine");
+  return {
+    city: data.cities.includes(city) ? city : "All",
+    year: YEARS.map(String).includes(year) ? year : "All",
+    cuisine: data.cuisines.includes(cuisine) ? cuisine : "All",
+  };
+}
+
 export default function App() {
   const [page, setPage] = useState(() => {
     const h = (location.hash || "").replace("#", "");
     return PAGES.some((p) => p.id === h) ? h : "overview";
   });
-  const [city, setCity] = useState("All");
-  const [year, setYear] = useState("All");
-  const [cuisine, setCuisine] = useState("All");
+  const start = useMemo(initialSelection, []);
+  const [city, setCity] = useState(start.city);
+  const [year, setYear] = useState(start.year);
+  const [cuisine, setCuisine] = useState(start.cuisine);
   const [tick, setTick] = useState(0);
   React.useEffect(() => {
     const id = setInterval(() => setTick((t) => t + 1), 2500);
@@ -40,6 +53,16 @@ export default function App() {
     location.hash = page;
   }, [page]);
 
+  React.useEffect(() => {
+    const q = new URLSearchParams(location.search);
+    for (const [k, v] of [["city", city], ["year", year], ["cuisine", cuisine]]) {
+      if (v === "All") q.delete(k);
+      else q.set(k, v);
+    }
+    const qs = q.toString();
+    history.replaceState(null, "", `${location.pathname}${qs ? `?${qs}` : ""}${location.hash}`);
+  }, [city, year, cuisine]);
+
   const gotoHash = () => {
     const h = (location.hash || "").replace("#", "");
     if (PAGES.some((p) => p.id === h)) setPage(h);
@@ -49,7 +72,7 @@ export default function App() {
     return () => window.removeEventListener("hashchange", gotoHash);
   }, []);
 
-  const f = useMemo(() => filterFacts({ city, year, cuisine }), [city, year, cuisine, tick]);
+  const f = useMemo(() => filterFacts({ city, year, cuisine }), [city, year, cuisine]);
 
   const sub = page === "overview" ? "Business pulse at a glance" : PAGE_SUB[page];
   const activeFilterChips = [
@@ -92,12 +115,23 @@ export default function App() {
             <span className="live-dot" /> LIVE STREAM
           </span>
           {activeFilterChips.length > 0 && (
-            <span style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+            <span style={{ display: "flex", gap: 6, flexWrap: "wrap", alignItems: "center" }}>
               {activeFilterChips.map((c) => (
                 <span key={c} className="pill o">
                   {c}
                 </span>
               ))}
+              <button
+                className="pill b"
+                style={{ cursor: "pointer", border: "none" }}
+                onClick={() => {
+                  setCity("All");
+                  setYear("All");
+                  setCuisine("All");
+                }}
+              >
+                Reset
+              </button>
             </span>
           )}
           <div className="slicers">

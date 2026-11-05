@@ -6,37 +6,44 @@ import { Card, Kpi, ToolTip, axisProps, axisYShort } from "../components.jsx";
 import { groupSum, PALETTE, data } from "../store.js";
 import { fmtINR, fmtNum, shortINR, shortNum } from "../utils.js";
 
+const DIMS = { g: "g", a: "a", l: "l", oc: "oc" };
+
 export default function Customers({ f }) {
   const [gender, setGender] = useState("All");
   const [age, setAge] = useState("All");
 
   const scoped = useMemo(
     () =>
-      f.tud.filter((r) => (gender === "All" || r.g === gender) && (age === "All" || r.a === age)),
+      f.dims.filter(
+        (r) =>
+          (r.k !== DIMS.g || gender === "All" || r.v === gender) &&
+          (r.k !== DIMS.a || age === "All" || r.v === age),
+      ),
     [f, gender, age],
   );
 
-  const revenue = scoped.reduce((a, r) => a + r.r, 0);
-  const orders = scoped.reduce((a, r) => a + r.o, 0);
+  const revenue = f.tcc.reduce((a, r) => a + r.r, 0);
+  const orders = f.tcc.reduce((a, r) => a + r.o, 0);
   const aov = orders ? revenue / orders : 0;
-  const ordersPerUser = orders / Math.max(data.meta.total_users, 1);
+  const buyingUsers = f.users;
+  const ordersPerUser = orders / Math.max(buyingUsers, 1);
 
   const genderRows = useMemo(
-    () => groupSum(scoped, (r) => r.g).map((g) => ({ gender: g.key, revenue: g.revenue, orders: g.orders })),
+    () => groupSum(scoped.filter((r) => r.k === DIMS.g), (r) => r.v).map((g) => ({ gender: g.key, revenue: g.revenue, orders: g.orders })),
     [scoped],
   );
   const ageRows = useMemo(
-    () => groupSum(scoped, (r) => r.a || "Unknown").sort((a, b) => a.key.localeCompare(b.key))
+    () => groupSum(scoped.filter((r) => r.k === DIMS.a), (r) => r.v || "Unknown").sort((a, b) => a.key.localeCompare(b.key))
       .map((g) => ({ age: g.key, revenue: g.revenue, orders: g.orders })),
     [scoped],
   );
   const loyaltyRows = useMemo(
-    () => groupSum(scoped, (r) => r.l).sort((a, b) => b.revenue - a.revenue)
+    () => groupSum(scoped.filter((r) => r.k === DIMS.l), (r) => r.v).sort((a, b) => b.revenue - a.revenue)
       .map((g) => ({ loyalty: g.key, revenue: g.revenue })),
     [scoped],
   );
   const occRows = useMemo(
-    () => groupSum(scoped, (r) => r.oc).sort((a, b) => b.revenue - a.revenue)
+    () => groupSum(scoped.filter((r) => r.k === DIMS.oc), (r) => r.v).sort((a, b) => b.revenue - a.revenue)
       .map((g) => ({ occ: g.key, revenue: g.revenue })),
     [scoped],
   );
@@ -48,8 +55,8 @@ export default function Customers({ f }) {
         <Kpi label="Revenue (scoped)" value={fmtINR(revenue)} delta="current slicer selection" />
         <Kpi label="Orders (scoped)" value={fmtNum(orders)} color="blue" delta="current slicer selection" />
         <Kpi label="AOV" value={fmtINR(aov)} color="green" delta="per order" />
-        <Kpi label="Orders / User" value={ordersPerUser.toFixed(1)} color="gold" delta="all-time average" />
-        <Kpi label="Registered Users" value={fmtNum(data.meta.total_users)} color="purple" delta="demographic base" />
+        <Kpi label="Orders / User" value={ordersPerUser.toFixed(1)} color="gold" delta="scoped buying users" />
+        <Kpi label="Buying Users" value={fmtNum(buyingUsers)} color="purple" delta="unique in scope" />
       </div>
 
       <div style={{ display: "flex", gap: 8, marginBottom: 16, flexWrap: "wrap" }}>
@@ -68,12 +75,12 @@ export default function Customers({ f }) {
       </div>
 
       <div className="grid cols" style={{ gridTemplateRows: "auto auto auto auto" }}>
-        <Card title="Gender — Revenue Split" subt="Male vs Female spend" className="w33">
+        <Card title="Gender — Revenue Split" subt="Male vs Female spend in scope" className="w33">
           <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie data={genderRows} dataKey="revenue" nameKey="gender" innerRadius={55} outerRadius={85} paddingAngle={4} isAnimationActive={false}>
                 {genderRows.map((_, i) => (
-                  <Cell key={i} fill={["#4c6fff", "#ef476f"][i % 2]} />
+                  <Cell key={i} fill={["#4c6fff", "#ef476f", "#b6b1cc"][i % 3]} />
                 ))}
               </Pie>
               <Tooltip content={<ToolTip key2="orders" />} />
@@ -82,7 +89,7 @@ export default function Customers({ f }) {
           </ResponsiveContainer>
         </Card>
 
-        <Card title="Age Group — Spend" subt="18–21 · 22–25 · 26–29 · 30–33" className="w33">
+        <Card title="Age Group — Spend" subt="Revenue by age band in scope" className="w33">
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={ageRows} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#eeecf5" vertical={false} />
@@ -110,7 +117,7 @@ export default function Customers({ f }) {
           </ResponsiveContainer>
         </Card>
 
-        <Card title="Occupation Mix" subt="Who spends the most" className="w33">
+        <Card title="Occupation Mix" subt="Who spends the most in scope" className="w33">
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={occRows} layout="vertical" margin={{ top: 0, right: 14, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#eeecf5" horizontal={false} />
@@ -122,7 +129,7 @@ export default function Customers({ f }) {
           </ResponsiveContainer>
         </Card>
 
-        <Card title="Order Frequency Segments" subt="Users by orders placed (all-time)" className="w33">
+        <Card title="Order Frequency Segments" subt="Users by lifetime orders · all users (not sliced)" className="w33">
           <ResponsiveContainer width="100%" height={240}>
             <BarChart data={freqRows} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#eeecf5" vertical={false} />
@@ -134,14 +141,14 @@ export default function Customers({ f }) {
           </ResponsiveContainer>
         </Card>
 
-        <Card title="Segmentation Snapshot" subt="Guidance derived from splits" className="w33">
+        <Card title="Segmentation Snapshot" subt="Guidance derived from the scoped splits" className="w33">
           <div style={{ display: "flex", flexDirection: "column", gap: 12, fontSize: 13 }}>
             {ageRows.length > 0 && (
               <Seg note={`Highest spending age band: ${ageRows.slice().sort((a, b) => b.revenue - a.revenue)[0]?.age}`} />
             )}
             <Seg note={`Dominant loyalty base: ${loyaltyRows[0]?.loyalty} (${((loyaltyRows[0]?.revenue / Math.max(revenue, 1)) * 100).toFixed(1)}% of revenue)`} />
             <Seg note={`Top occupation: ${occRows[0]?.occ}`} />
-            <Seg note={`${fmtNum(freqRows[1]?.users + freqRows[2]?.users)} users ordered 2–9 times — the loyalty engine of the platform.`} />
+            <Seg note={`${fmtNum(freqRows[1]?.users + freqRows[2]?.users)} users ordered 2–9 times (all-time) — the loyalty engine of the platform.`} />
             <Seg note="VIP program recommended: top 10% of users generate ~80% of sales." />
           </div>
         </Card>

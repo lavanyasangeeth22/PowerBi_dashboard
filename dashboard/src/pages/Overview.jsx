@@ -1,13 +1,14 @@
 ﻿import React, { useMemo, useEffect, useState } from "react";
 import {
-  Bar, BarChart, Area, AreaChart, CartesianGrid, Cell, Legend, Line, LineChart,
-  Pie, PieChart, Tooltip, XAxis, YAxis, ResponsiveContainer, ComposedChart,
+  Area, AreaChart, Bar, BarChart, CartesianGrid, Cell, ComposedChart, Line, LineChart,
+  Pie, PieChart, ResponsiveContainer, Tooltip, XAxis, YAxis,
 } from "recharts";
 import { Card, Kpi, ToolTip, axisProps, axisYShort } from "../components.jsx";
-import { groupSum, monthly, AI_INSIGHTS, PALETTE, data } from "../store.js";
-import { fmtINR, fmtNum, shortINR, shortNum } from "../utils.js";
+import { groupSum, monthly, AI_INSIGHTS, PALETTE, data, DAY_ORDER } from "../store.js";
+import { fmtINR, fmtNum, shortINR } from "../utils.js";
 
-const CITY_NAMES = ["Koramangala, Bangalore", "Sector 43, Gurgaon", "Powai, Mumbai", "Banjara Hills, Hyderabad", "Anna Nagar, Chennai", "Salt Lake, Kolkata", "Bandra West, Mumbai", "Indiranagar, Bangalore"];
+const BAND_ORDER = ["<2.0", "2.0-3.0", "3.0-3.5", "3.5-4.0", "4.0-5.0", "Not Rated"];
+const BAND_COLORS = ["#e64545", "#f2b840", "#fc8019", "#22b07d", "#118ab2", "#b6b1cc"];
 
 export default function Overview({ f, tick }) {
   const trend = useMemo(() => monthly(f), [f]);
@@ -29,19 +30,26 @@ export default function Overview({ f, tick }) {
     () => groupSum(f.tcc, (r) => r.cu).sort((a, b) => b.revenue - a.revenue).slice(0, 6).map((g) => ({ cuisine: g.key, revenue: g.revenue })),
     [f],
   );
+
   const weekday = useMemo(() => {
-    const names = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    const m = new Map(names.map((n) => [n, { key: n, revenue: 0, orders: 0 }]));
-    for (const row of f.fdaily) {
-      const d = new Date(row.date).getDay();
-      const g = m.get(names[d]);
-      g.revenue += row.revenue;
-      g.orders += row.orders;
+    const m = new Map(DAY_ORDER.map((n) => [n, { revenue: 0, orders: 0 }]));
+    for (const row of f.dow) {
+      const g = m.get(row.d);
+      if (!g) continue;
+      g.revenue += row.r;
+      g.orders += row.o;
     }
-    return names.map((n) => m.get(n)).map((g) => ({ day: g.key.slice(0, 3), revenue: g.revenue, orders: g.orders }));
+    return DAY_ORDER.map((n) => ({ day: n.slice(0, 3), revenue: m.get(n).revenue, orders: m.get(n).orders }));
   }, [f]);
 
-  const ratingBands = useMemo(() => data.rating_band_split.map((r) => ({ ...r })), []);
+  const ratingBands = useMemo(
+    () =>
+      [...f.ratingBands]
+        .sort((a, b) => BAND_ORDER.indexOf(a.band) - BAND_ORDER.indexOf(b.band))
+        .map((r) => ({ rating_band: r.band, restaurants: r.n })),
+    [f],
+  );
+  const ratedTotal = ratingBands.filter((r) => r.rating_band !== "Not Rated").reduce((a, r) => a + r.restaurants, 0);
 
   return (
     <>
@@ -49,8 +57,13 @@ export default function Overview({ f, tick }) {
         <Kpi label="Total Revenue" value={fmtINR(kpis.revenue)} delta="sales_value from orders" color="" />
         <Kpi label="Total Orders" value={fmtNum(kpis.orders)} delta="order volume" color="blue" />
         <Kpi label="Avg Order Value" value={fmtINR(kpis.aov)} delta="per order" color="green" />
-        <Kpi label="Avg Rating" value={data.meta.avg_rating} delta={`across ${fmtNum(data.meta.total_rated_restaurants)} rated outlets`} color="gold" />
-        <Kpi label="Active Users" value={fmtNum(data.meta.total_users)} delta="registered profiles" color="purple" />
+        <Kpi
+          label="Avg Rating"
+          value={f.marketTotal?.avg_rating ? f.marketTotal.avg_rating.toFixed(2) : "–"}
+          delta={`${fmtNum(f.marketTotal?.restaurants)} outlets in scope (snapshot)`}
+          color="gold"
+        />
+        <Kpi label="Buying Users" value={fmtNum(f.users)} delta="unique users in scope" color="purple" />
       </div>
 
       <div className="grid cols" style={{ gridTemplateRows: "auto auto auto auto" }}>
@@ -72,7 +85,7 @@ export default function Overview({ f, tick }) {
           </ResponsiveContainer>
         </Card>
 
-        <LiveFeed tick={tick} aov={kpis.aov} className="w33" />
+        <LiveFeed tick={tick} aov={kpis.aov} city={f.sel.city} className="w33" />
 
         <Card title="Top Cities by Revenue" subt="Metro-level contribution" className="w66">
           <ResponsiveContainer width="100%" height={250}>
@@ -90,7 +103,7 @@ export default function Overview({ f, tick }) {
           </ResponsiveContainer>
         </Card>
 
-        <Card title="Weekday Pattern" subt="Order value across the week" className="w33">
+        <Card title="Weekday Pattern" subt="Revenue by day of week · slicer aware" className="w33">
           <ResponsiveContainer width="100%" height={250}>
             <LineChart data={weekday} margin={{ top: 6, right: 8, left: 0, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" stroke="#eeecf5" vertical={false} />
@@ -102,25 +115,26 @@ export default function Overview({ f, tick }) {
           </ResponsiveContainer>
         </Card>
 
-        <Card title="Restaurant Rating Distribution" subt="Rating bands across all outlets" className="w33">
+        <Card title="Restaurant Rating Distribution" subt="Rating bands in scope · snapshot (year not applicable)" className="w33">
           <ResponsiveContainer width="100%" height={230}>
             <PieChart>
               <Pie data={ratingBands.filter((r) => r.rating_band !== "Not Rated")} dataKey="restaurants" nameKey="rating_band" innerRadius={52} outerRadius={82} paddingAngle={3} isAnimationActive={false}>
-                {ratingBands.map((r, i) => (
-                  <Cell key={r.rating_band} fill={["#e64545", "#f2b840", "#fc8019", "#22b07d", "#118ab2"][i]} />
+                {ratingBands.filter((r) => r.rating_band !== "Not Rated").map((r) => (
+                  <Cell key={r.rating_band} fill={BAND_COLORS[BAND_ORDER.indexOf(r.rating_band)]} />
                 ))}
               </Pie>
               <Tooltip formatter={(v) => fmtNum(v)} />
             </PieChart>
           </ResponsiveContainer>
           <div style={{ display: "flex", gap: 10, flexWrap: "wrap", fontSize: 11, color: "#7a7790" }}>
-            {ratingBands.filter((r) => r.rating_band !== "Not Rated").map((r, i) => (
+            {ratingBands.filter((r) => r.rating_band !== "Not Rated").map((r) => (
               <span key={r.rating_band} style={{ display: "flex", alignItems: "center", gap: 5 }}>
-                <span style={{ width: 9, height: 9, borderRadius: 3, background: ["#e64545", "#f2b840", "#fc8019", "#22b07d", "#118ab2"][i] }} />
+                <span style={{ width: 9, height: 9, borderRadius: 3, background: BAND_COLORS[BAND_ORDER.indexOf(r.rating_band)] }} />
                 {r.rating_band}
               </span>
             ))}
-            <span style={{ opacity: 0.7 }}>· Not Rated: {fmtNum(ratingBands.find((r) => r.rating_band === "Not Rated")?.restaurants)}</span>
+            <span style={{ opacity: 0.7 }}>· Not Rated: {fmtNum(ratingBands.find((r) => r.rating_band === "Not Rated")?.restaurants ?? 0)}</span>
+            <span style={{ opacity: 0.7 }}>· Rated: {fmtNum(ratedTotal)}</span>
           </div>
         </Card>
 
@@ -145,7 +159,9 @@ export default function Overview({ f, tick }) {
 }
 
 /* ---------------- live order feed (simulated realtime) ---------------- */
-function LiveFeed({ tick, aov, className }) {
+const FEED_CITIES = ["Koramangala, Bangalore", "Sector 43, Gurgaon", "Powai, Mumbai", "Banjara Hills, Hyderabad", "Anna Nagar, Chennai", "Salt Lake, Kolkata", "Bandra West, Mumbai", "Indiranagar, Bangalore"];
+
+function LiveFeed({ tick, aov, city, className }) {
   const [feed, setFeed] = useState([]);
   const [liveRev, setLiveRev] = useState(0);
   const [liveOrders, setLiveOrders] = useState(0);
@@ -157,12 +173,11 @@ function LiveFeed({ tick, aov, className }) {
     const rows = [];
     for (let i = 0; i < n; i++) {
       const items = 1 + Math.floor(Math.random() * 4);
-      const amount = Math.max(120, Math.round(aov * (0.05 + Math.random() * 0.15)) * items);
-      const citySlot = CITY_NAMES[Math.floor(Math.random() * CITY_NAMES.length)];
+      const amount = Math.max(120, Math.round((aov || 6600) * (0.05 + Math.random() * 0.15)) * items);
+      const citySlot = city !== "All" ? `${city} (selected scope)` : FEED_CITIES[Math.floor(Math.random() * FEED_CITIES.length)];
       const mins = 22 + Math.floor(Math.random() * 20);
       rows.push({
         id: `${now.getTime()}-${i}`,
-        icon: ["ðŸ”", "ðŸ•", "ðŸ›", "ðŸ±", "ðŸ¥˜", "ðŸœ"][Math.floor(Math.random() * 6)],
         title: `Order · ${items} item${items > 1 ? "s" : ""} · ${fmtINR(amount, false)}`,
         amount,
         meta: `${citySlot} · ETA ${mins} min`,
@@ -172,7 +187,7 @@ function LiveFeed({ tick, aov, className }) {
     setFeed((prev) => [...rows, ...prev].slice(0, 7));
     setLiveRev((r) => r + rows.reduce((a, x) => a + x.amount, 0));
     setLiveOrders((o) => o + n);
-  }, [tick, aov]);
+  }, [tick, aov, city]);
 
   return (
     <Card className={className}>
@@ -182,7 +197,7 @@ function LiveFeed({ tick, aov, className }) {
           <span className="live-dot" /> {fmtNum(liveOrders)} new
         </span>
       </div>
-      <div className="subt">Simulated realtime stream · refresh 2.5s</div>
+      <div className="subt">Simulated feed sized to the selected scope · refresh 2.5s</div>
       <div style={{ display: "flex", gap: 12, marginBottom: 12 }}>
         <div className="card" style={{ flex: 1, boxShadow: "none", background: "#fff7f0" }}>
           <div className="label" style={{ fontSize: 11.5, fontWeight: 600, color: "#d95a00" }}>Today's revenue</div>
@@ -197,7 +212,6 @@ function LiveFeed({ tick, aov, className }) {
         {feed.length === 0 && <div style={{ fontSize: 12, color: "#7a7790" }}>Listening for orders…</div>}
         {feed.map((row) => (
           <div key={row.id} className="feedrow">
-            
             <div>
               <div style={{ fontWeight: 600 }}>{row.title}</div>
               <div style={{ color: "#a09db5", fontSize: 10.5 }}>{row.meta}</div>
