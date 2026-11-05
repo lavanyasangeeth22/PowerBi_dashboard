@@ -30,7 +30,10 @@ body {
 .sidebar {
   width: 224px;
   min-width: 224px;
-  background: var(--sidebar);
+  background:
+    linear-gradient(160deg, rgba(252, 128, 25, 0.72) 0%, rgba(252, 128, 25, 0.52) 55%, rgba(252, 128, 25, 0.42) 100%),
+    #2b2b2b;
+  backdrop-filter: blur(14px);
   color: var(--sidebar-ink);
   display: flex;
   flex-direction: column;
