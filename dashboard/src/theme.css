@@ -5,7 +5,7 @@
   --card: #ffffff;
   --ink: #1c1a27;
   --muted: #7a7790;
-  --sidebar: #16222e;
+  --sidebar: #2b2b2b;
   --sidebar-ink: #c8d3de;
   --green: #22b07d;
   --red: #e64545;
@@ -30,7 +30,9 @@ body {
 .sidebar {
   width: 224px;
   min-width: 224px;
-  background: var(--sidebar);
+  background:
+    linear-gradient(180deg, rgba(252, 128, 25, 0.32) 0%, rgba(252, 128, 25, 0.10) 22%, rgba(252, 128, 25, 0) 46%),
+    var(--sidebar);
   color: var(--sidebar-ink);
   display: flex;
   flex-direction: column;
@@ -127,11 +129,6 @@ body {
 .kpi .delta { font-size: 11.5px; font-weight: 600; color: var(--muted); display: flex; gap: 6px; align-items: center; }
 .kpi .delta.up { color: var(--green); }
 .kpi .delta.down { color: var(--red); }
-.kpi .stripe { position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 4px 0 0 4px; background: var(--swiggy-orange); }
-.kpi .stripe.blue { background: var(--blue); }
-.kpi .stripe.green { background: var(--green); }
-.kpi .stripe.purple { background: var(--purple); }
-.kpi .stripe.gold { background: var(--gold); }
 
 .card h3 { font-size: 14px; font-weight: 700; margin-bottom: 4px; font-family: "Space Grotesk", "Manrope", sans-serif; }
 .card .subt { font-size: 11px; color: var(--muted); margin-bottom: 12px; }

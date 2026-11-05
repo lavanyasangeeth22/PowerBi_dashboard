@@ -1,10 +1,9 @@
 import React from "react";
 import { fmtINR, fmtNum, shortINR, shortNum } from "./utils.js";
 
-export function Kpi({ label, value, delta, deltaDir, color = "" }) {
+export function Kpi({ label, value, delta, deltaDir }) {
   return (
     <div className="card kpi">
-      <span className={`stripe ${color}`} />
       <span className="label">{label}</span>
       <div className="value">{value}</div>
       {delta && <div className={`delta ${deltaDir || ""}`}>{delta}</div>}
